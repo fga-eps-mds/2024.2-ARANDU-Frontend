@@ -1,6 +1,6 @@
-const REPO = '2024.1-CALCULUS-Frontend';
+const REPO = '2024.2-ARANDU-Frontend';
 const OWNER = 'fga-eps-mds';
-const SONAR_ID = 'fga-eps-mds_2024.1-CALCULUS-Frontend';
+const SONAR_ID = 'fga-eps-mds_2024.2-ARANDU-Frontend';
 
 const METRIC_LIST = [
     'files',    
