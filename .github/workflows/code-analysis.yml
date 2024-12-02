@@ -28,8 +28,7 @@ jobs:
 
       - name: Executa testes e gera cobertura
         run: |
-          npm run test:all
-          exit 0
+          npm run test:all -- -u
 
       - name: Executa SonarCloud Scan
         if: ${{ always() }}
