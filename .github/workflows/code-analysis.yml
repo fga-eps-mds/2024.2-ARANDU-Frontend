@@ -27,8 +27,7 @@ jobs:
         run: npm run build
 
       - name: Executa testes e gera cobertura
-        run: |
-          npm run test:all -- -u --no-stderr
+        run: npm run test:all 
 
       - name: Executa SonarCloud Scan
         if: ${{ always() }}
