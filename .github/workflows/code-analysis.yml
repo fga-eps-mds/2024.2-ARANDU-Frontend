@@ -22,6 +22,9 @@ jobs:
 
       - name: Instala dependências
         run: npm install
+        
+      - name: Build Next.js Application
+        run: npm run build
 
       - name: Executa testes e gera cobertura
         run: npm run test:all
