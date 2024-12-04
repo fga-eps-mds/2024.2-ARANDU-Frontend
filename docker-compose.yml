@@ -6,6 +6,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: front-api
+    env_file:
+      - .env
     ports:
       - "4000:4000"
     networks:

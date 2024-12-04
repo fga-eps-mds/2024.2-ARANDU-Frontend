@@ -15,7 +15,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-COPY .env.prod.template .env.production
+COPY .env.prod.template .env
 RUN npm run build
 
 FROM base AS runner
