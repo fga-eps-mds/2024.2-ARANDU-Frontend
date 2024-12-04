@@ -11,8 +11,6 @@ services:
     networks:
       - arandu-network
 
-  
-
 networks:
   arandu-network:
     driver: bridge
