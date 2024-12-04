@@ -17,7 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 
-COPY .env.dev.template .env.production
+COPY .env .env.production
 RUN npm run build
 
 FROM base AS runner
