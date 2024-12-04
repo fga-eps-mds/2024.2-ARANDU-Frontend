@@ -28,8 +28,8 @@ ENV NODE_ENV=production
 RUN addgroup -g 1001 -S nodejs \
   && adduser -S arandu -u 1001
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=arandu:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=arandu:nodejs /app/.next/static ./.next/static
 
 RUN mkdir -p .next/cache \
   && chown -R arandu:nodejs .next
