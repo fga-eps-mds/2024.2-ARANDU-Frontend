@@ -15,4 +15,4 @@ services:
 
 networks:
   arandu-network:
-    driver: bridge
+    name: arandu-network
