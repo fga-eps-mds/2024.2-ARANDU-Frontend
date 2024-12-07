@@ -1,16 +1,16 @@
 'use client';
 
-import { Box, IconButton, InputAdornment, Link } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { SigninData, signinSchema } from '@/lib/schemas/singin.schemas';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { signIn, useSession } from 'next-auth/react';
-import { toast } from 'sonner';
 import Mybutton from '@/components/ui/buttons/myButton.component';
 import MyInput from '@/components/ui/inputs/myInput.component';
+import { SigninData, signinSchema } from '@/lib/schemas/singin.schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Box, IconButton, InputAdornment, Link } from '@mui/material';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export function SingInForm() {
   const { data: session } = useSession();
@@ -36,10 +36,18 @@ export function SingInForm() {
   const handleMouseDownPassword = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
   };
+  const onSubmit: SubmitHandler<SigninData> = (data) => {
+    signIn('credentials', {
+      email: watch('email'),
+      password: watch('password'),
+      redirect: false
+    });
+  };
 
   const {
     register,
     watch,
+    handleSubmit,
     formState: { errors },
   } = useForm<SigninData>({
     resolver: zodResolver(signinSchema),
@@ -48,13 +56,14 @@ export function SingInForm() {
   return (
     <Box
       component="form"
-      action={() => {
-        signIn('credentials', {
-          email: watch('email'),
-          password: watch('password'),
-          redirect: false,
-        });
-      }}
+      onSubmit={handleSubmit(onSubmit)}
+      // action={() => {
+      //   signIn('credentials', {
+      //     email: watch('email'),
+      //     password: watch('password'),
+      //     redirect: false,
+      //   });
+      // }}
       className="grid gap-4 justify-center m-3"
     >
       <MyInput
