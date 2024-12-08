@@ -1,7 +1,4 @@
-FROM node:22-alpine AS base
-
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+FROM node:22 AS base
 
 WORKDIR /app
 
@@ -9,35 +6,28 @@ COPY package.json package-lock.json* ./
 RUN \
   if [ -f package-lock.json ]; then npm ci; \
   fi
-
+  
+RUN npm install nodemon --save-dev
 
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+RUN npm install
 COPY . .
-
-
-COPY .env .env.production
+  
+COPY .env .env
 RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
-RUN addgroup -g 1001 -S nodejs \
-  && adduser -S arandu -u 1001
-
-COPY --from=builder --chown=arandu:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=arandu:nodejs /app/.next/static ./.next/static
-
-RUN mkdir -p .next/cache \
-  && chown -R arandu:nodejs .next
-
-USER arandu
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/ ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 4000
 
 ENV PORT=4000
 
-CMD ["node", "server.js"]
+CMD ["npm", "run", "dev"]
