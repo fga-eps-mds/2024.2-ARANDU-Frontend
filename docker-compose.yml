@@ -2,6 +2,8 @@ services:
   front-api:
     container_name: front-api
     restart: on-failure
+    env_file:
+      - .env
     build:
       context: ./
       dockerfile: Dockerfile
@@ -13,4 +15,4 @@ services:
 
 networks:
   arandu-network:
-    driver: bridge
+    name: arandu-network
