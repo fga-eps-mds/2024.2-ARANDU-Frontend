@@ -16,3 +16,4 @@ services:
 networks:
   arandu-network:
     name: arandu-network
+    external: true
