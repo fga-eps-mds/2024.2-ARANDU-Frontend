@@ -1,7 +1,6 @@
 import { userApi } from '@/services/apis.service';
 
 export const createUser = async (data: any) => {
-  console.log(data);
   try {
     const response = await userApi.post('users', data);
     return {
@@ -21,7 +20,6 @@ export const loginWithEmailAndPassword = async (
   password: string,
 ) => {
   try {
-    console.log(`Login email: ${email}, password: ${password}`);
     const response = await userApi.post('auth/login', { email, password });
     return response;
   } catch (error) {
@@ -50,7 +48,6 @@ export const getUsers = async (token: string) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Users:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch users:', error);
@@ -83,7 +80,6 @@ export const updateUserRole = async (
 };
 
 export const forgotPassword = async (data: any) => {
-  console.log('forgot data', data);
   try {
     const response = await userApi.post('/auth/forgot-password', data);
     return response.data;
@@ -93,7 +89,6 @@ export const forgotPassword = async (data: any) => {
 };
 
 export const resetPassword = async (data: any) => {
-  console.log('reset data', data);
   try {
     const response = await userApi.put('/auth/reset-password', data);
     return response.data;
