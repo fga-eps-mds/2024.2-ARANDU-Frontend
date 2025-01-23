@@ -33,6 +33,12 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin'],
   },
   {
+    label: 'Disciplinas',
+    href: `/subjects/admin`,
+    icon: <DashboardIcon className="h-5 w-5 mr-2" />,
+    roles: ['admin'],
+  },
+  {
     label: 'Meus Pontos de Partida',
     href: '/starting-points',
     icon: <FollowTheSignsIcon className="h-5 w-5 mr-2" />,
