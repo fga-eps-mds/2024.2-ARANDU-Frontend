@@ -235,7 +235,7 @@ export const getJourneys = async (): Promise<Journey[]> => {
 
 export const getJourneysByPoint = async (id: string): Promise<Journey[]> => {
   try {
-    const response = await studioMakerApi.get(`/journeys/${id}`, {
+    const response = await studioMakerApi.get(`/journeys/subjects/${id}`, {
     });
     console.log('Journeys:', response.data);
     return response.data;
