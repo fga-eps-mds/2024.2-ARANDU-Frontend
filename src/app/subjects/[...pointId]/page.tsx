@@ -70,14 +70,17 @@ export default function SubjectPage({
             setFilteredSubjects(listSubjects);
         } else {
             const lowercasedQuery = searchQuery.toLowerCase();
-            const filtered = listSubjects.filter(
-                (subject) =>
-                    subject.name ||
-                    subject.description.toLowerCase().includes(lowercasedQuery),
-            );
+            const filtered = listSubjects.filter((subject) => {
+                return (
+                    subject.name.toLowerCase().includes(lowercasedQuery) ||
+                    subject.description.toLowerCase().includes(lowercasedQuery)
+                );
+            });
+
             setFilteredSubjects(filtered);
         }
     }, [searchQuery, listSubjects]);
+
 
     const handleMenuOpen = (
         event: React.MouseEvent<HTMLButtonElement>,

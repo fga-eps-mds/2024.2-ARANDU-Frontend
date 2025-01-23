@@ -4,6 +4,7 @@ import {
     type MRT_ColumnDef,
     MRT_TableContainer as MrtTableContainer,
     MRT_Row,
+    MRT_PaginationState
 } from 'material-react-table';
 import { useRouter } from 'next/navigation';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -41,7 +42,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
     const columns = useMemo<MRT_ColumnDef<Subject>[]>(
         () => [
             {
-                accessorKey: 'title',
+                accessorKey: 'name',
                 header: 'Nome',
             },
 
@@ -71,11 +72,11 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
                             <MenuItem
                                 onClick={() => {
                                     if (selectedSubject) {
-                                        router.push(`/trail/${selectedSubject._id}`);
+                                        router.push(`/journey/${selectedSubject._id}`);
                                     }
                                 }}
                             >
-                                Gerenciar trilhas
+                                Gerenciar Jornadas
                             </MenuItem>
                             <MenuItem onClick={() => onSubjectAction('excluir')}>
                                 Excluir
@@ -99,6 +100,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         columns,
         data,
         enableRowOrdering: true,
+        enablePagination: false,  // Desabilita a paginação
         muiRowDragHandleProps: ({ table }) => ({
             onDragEnd: async (): Promise<void> => {
                 const { draggingRow, hoveredRow } = table.getState();
@@ -115,6 +117,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
             },
         }),
     });
+
 
 
     return <MrtTableContainer table={table} />;
