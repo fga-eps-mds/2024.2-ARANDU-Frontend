@@ -5,6 +5,8 @@ import { StartPoint } from '../lib/interfaces/startPoint.interface';
 import { Journey } from '@/lib/interfaces/journey.interface';
 import { Trail } from '@/lib/interfaces/trails.interface';
 import { Content } from '@/lib/interfaces/content.interface';
+import { Subject } from '@/lib/interfaces/subjetc.interface'
+
 
 export const getStartPoints = async (): Promise<StartPoint[]> => {
   try {
@@ -102,6 +104,123 @@ export const deleteStartPoint = async ({
   }
 };
 
+export const GetSubjects = async (): Promise<Subject[]> => {
+  try {
+    const response = await studioMakerApi.get('/subjects', {
+    });
+    console.log("Subjects:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch Subjects erro aqui animal", error);
+    throw error;
+  }
+
+}
+
+export const GetSubjectsByUserId = async (id: string): Promise<Subject[]> => {
+  try {
+    const response = await studioMakerApi.get(`/subjects/user/${id}`, {
+    });
+    console.log("Subjects:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch Subjects", error);
+    throw error;
+  }
+
+}
+export const createSubject = async ({
+  data,
+  token,
+}: {
+  data: any;
+  token: string;
+}) => {
+  try {
+    console.log(data);
+    const response = await studioMakerApi.post('/subjects', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('subjects created:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to create subjects:', error);
+    return { error: error };
+  }
+};
+export const updateSubjectById = async ({
+  id,
+  data,
+  token,
+}: {
+  id: string;
+  data: any;
+  token: string;
+}) => {
+  try {
+    const response = await studioMakerApi.put(`/subjects/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('subjects updated:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to update subjects:', error);
+    return { error: error };
+  }
+};
+
+export const updateSubjectOrder = async (
+  updatedJourneys: Subject[],
+): Promise<any> => {
+  try {
+    const response = await studioMakerApi.patch(
+      '/subject/order',
+      {
+        subject: updateSubjectById,
+      },
+    );
+    console.log('Journeys updated:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to update journeys:', error);
+    return { error: error };
+  }
+};
+
+
+export const deleteSubjects = async ({
+  id,
+  token,
+}: {
+  id: string;
+  token: string;
+}) => {
+  try {
+    const response = await studioMakerApi.delete(`/subjects/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('subjects deleted:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to delete subjects:', error);
+    return { error: error };
+  }
+};
+
 export const getJourneys = async (): Promise<Journey[]> => {
   try {
     const response = await studioMakerApi.get('/journeys', {
@@ -109,14 +228,14 @@ export const getJourneys = async (): Promise<Journey[]> => {
     console.log('Journeys:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch jpurney:', error);
+    console.error('Failed to fetch journey:', error);
     throw error;
   }
 };
 
 export const getJourneysByPoint = async (id: string): Promise<Journey[]> => {
   try {
-    const response = await studioMakerApi.get(`/journeys/point/${id}`, {
+    const response = await studioMakerApi.get(`/journeys/${id}`, {
     });
     console.log('Journeys:', response.data);
     return response.data;
