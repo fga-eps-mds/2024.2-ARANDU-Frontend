@@ -20,23 +20,26 @@ export function SubjectForm({ callback, subject, setDialog, pointId }: any) {
     } = useForm<SubjectSchemaData>({
         resolver: zodResolver(subjectSchema),
         defaultValues: {
-            title: subject ? subject.title : '',
+            name: subject ? subject.name : '',
+            description: subject ? subject.description : '',
         },
     });
 
     const onSubmit: SubmitHandler<SubjectSchemaData> = async (data) => {
+        const token = JSON.parse(localStorage.getItem('token')!); // Obtém o token do localStorage
         const response = subject
             ? await updateSubjectById({
                 id: subject._id,
                 data,
-                token: JSON.parse(localStorage.getItem('token')!),
+                token,
             })
             : await createSubject({
                 data: { pointId, ...data },
-                token: JSON.parse(localStorage.getItem('token')!),
+                token,
             });
-        if (response.data) {
-            toast.success('Assunto atualizado com sucesso!');
+
+        if (response?.data) {
+            toast.success(subject ? 'Assunto atualizado com sucesso!' : 'Assunto criado com sucesso!');
             callback(response.data);
             setDialog(false);
         } else {
@@ -49,12 +52,26 @@ export function SubjectForm({ callback, subject, setDialog, pointId }: any) {
             <TextField
                 fullWidth
                 variant="outlined"
-                label="Título do Assunto"
+                label="Nome da Disciplina"
                 margin="normal"
                 required
                 sx={{ bgcolor: 'white' }}
-                {...register('title')}
-                error={!!errors.title}
+                {...register('name')}
+                error={!!errors.name}
+
+            />
+            <TextField
+                fullWidth
+                variant="outlined"
+                label="Descrição"
+                margin="normal"
+                required
+                multiline
+                rows={4}
+                sx={{ bgcolor: 'white' }}
+                {...register('description')}
+                error={!!errors.description}
+
             />
             <MyButton type="submit" width="100%" height="50px" color="black" bold>
                 {subject ? 'Atualizar Assunto' : 'Criar Assunto'}
