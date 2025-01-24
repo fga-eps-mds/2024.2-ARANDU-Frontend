@@ -119,7 +119,7 @@ export const GetSubjects = async (): Promise<Subject[]> => {
 
 export const GetSubjectsByUserId = async (id: string): Promise<Subject[]> => {
   try {
-    const response = await studioMakerApi.get(`/subjects/user/${id}`, {
+    const response = await studioMakerApi.get(`/subjects/users/${id}`, {
     });
     console.log("Subjects:", response.data);
     return response.data;
@@ -162,7 +162,7 @@ export const updateSubjectById = async ({
   token: string;
 }) => {
   try {
-    const response = await studioMakerApi.put(`/subjects/${id}`, data, {
+    const response = await studioMakerApi.patch(`/subjects/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -178,13 +178,13 @@ export const updateSubjectById = async ({
 };
 
 export const updateSubjectOrder = async (
-  updatedJourneys: Subject[],
+  updatedSubjects: Subject[],
 ): Promise<any> => {
   try {
     const response = await studioMakerApi.patch(
       '/subject/order',
       {
-        subject: updateSubjectById,
+        subject: updatedSubjects
       },
     );
     console.log('Journeys updated:', response.data);
@@ -192,7 +192,7 @@ export const updateSubjectOrder = async (
       data: response.data,
     };
   } catch (error) {
-    console.error('Failed to update journeys:', error);
+    console.error('Failed to update Subject:', error);
     return { error: error };
   }
 };

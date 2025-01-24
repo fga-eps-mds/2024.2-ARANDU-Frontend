@@ -33,11 +33,11 @@ export default function SubjectPage({
     const fetchSubjects = async (): Promise<Subject[]> => {
         let subjects: Subject[];
 
-        if (params.pointId === "admin") {
+        if (params.pointId == "admin") {
             subjects = await GetSubjects();
         } else {
 
-            subjects = await GetSubjects();
+            subjects = await GetSubjectsByUserId(params.pointId);
         }
         subjects.sort((a, b) => a.order - b.order);
         setListSubjects(subjects);
