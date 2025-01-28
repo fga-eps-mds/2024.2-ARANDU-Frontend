@@ -7,6 +7,7 @@ import { Drawer, IconButton, Box } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import CloseIcon from '@mui/icons-material/Close';
 import FollowTheSignsIcon from '@mui/icons-material/FollowTheSigns';
+import { useEffect, useState } from 'react';
 
 interface SideBarProps {
   handleDrawerOpen: () => void;
@@ -33,6 +34,18 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin'],
   },
   {
+    label: 'Disciplinas (Admin)',
+    href: `/subjects/admin`,
+    icon: <DashboardIcon className="h-5 w-5 mr-2" />,
+    roles: ['admin'],
+  },
+  {
+    label: 'Disciplinas',
+    href: `/subjects/{id}`,
+    icon: <DashboardIcon className="h-5 w-5 mr-2" />,
+    roles: ['aluno'],
+  },
+  {
     label: 'Meus Pontos de Partida',
     href: '/starting-points',
     icon: <FollowTheSignsIcon className="h-5 w-5 mr-2" />,
@@ -42,6 +55,15 @@ const sidebarItems: SidebarItem[] = [
 
 const Sidebar: React.FC<SideBarProps> = ({ handleDrawerOpen, open }) => {
   const { data: session } = useSession();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Carrega o ID do usuário do localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const id = localStorage.getItem('id');
+      setUserId(id ? id.replace(/"/g, '') : null); // Remove as aspas da string
+    }
+  }, []);
 
   return (
     <Drawer anchor="left" open={open} onClose={handleDrawerOpen}>
@@ -56,20 +78,23 @@ const Sidebar: React.FC<SideBarProps> = ({ handleDrawerOpen, open }) => {
                 ? item.roles.includes(session.user.role)
                 : true,
             )
-            .map((item) => (
-              <li
-                key={item.href}
-                className="mb-2 flex items-center p-2 hover:bg-blue-100 hover:text-purple-600 transition duration-200"
-              >
-                {item.icon}
-                <Link
-                  href={item.href}
-                  className="block p-2 hover:bg-blue-100 hover:text-purple-600 transition duration-200"
+            .map((item) => {
+              const href = item.href.replace('{id}', userId || '');
+              return (
+                <li
+                  key={href}
+                  className="mb-2 flex items-center p-2 hover:bg-blue-100 hover:text-purple-600 transition duration-200"
                 >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+                  {item.icon}
+                  <Link
+                    href={href}
+                    className="block p-2 hover:bg-blue-100 hover:text-purple-600 transition duration-200"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
         </ul>
       </Box>
     </Drawer>

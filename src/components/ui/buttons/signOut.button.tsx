@@ -12,8 +12,8 @@ export function SignOutButton() {
   };
   return (
     <MyButton
-      width="115px"
-      height="50px"
+      width="6em"
+      height="3em"
       color="white"
       type="submit"
       bold
