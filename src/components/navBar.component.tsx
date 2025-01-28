@@ -29,7 +29,7 @@ const NavBar: React.FC<NavBarProps> = ({ handleDrawerOpen, open }) => {
         </Toolbar>
       </AppBar>
       <Sidebar open={open} handleDrawerOpen={handleDrawerOpen} />
-      <Box sx={{ height: '64px' }} /> {/* Espaço reservado para a AppBar */}
+      <Box sx={{ height: '4em' }} /> {/* Espaço reservado para a AppBar */}
     </>
   );
 };
