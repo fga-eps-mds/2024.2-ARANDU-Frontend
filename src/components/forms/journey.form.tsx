@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, TextField } from '@mui/material';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
 import MyButton from '@/components/ui/buttons/myButton.component';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Box, TextField } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { journeySchema, JourneySchemaData } from '@/lib/schemas/journey.schema';
 import {
@@ -15,8 +15,7 @@ import {
 export function JourneyForm({ callback, journey, setDialog, pointId }: any) {
 
   const urlAtual = window.location.href;
-  const e = /\/journey\/([a-zA-Z0-9]+)$/;
-  const match = e.exec(urlAtual);
+  const match = urlAtual.match(/\/journey\/([a-zA-Z0-9]+)$/);
   const extractedId = match ? match[1] : null;
 
   const {

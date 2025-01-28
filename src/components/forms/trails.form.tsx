@@ -1,16 +1,15 @@
 'use client';
 
-import { Box, Button, TextField } from '@mui/material';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
 import { TrailSchemaData, trailsSchema } from '@/lib/schemas/trail.schema';
 import { createTrail, updateTrailById } from '@/services/studioMaker.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Box, Button, TextField } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export function TrailForm({ callback, trail, setDialog, journeyId }: any) {
   const urlAtual = window.location.href;
-  const e = /\/trail\/([a-zA-Z0-9]+)$/;
-  const match = e.exec(urlAtual);
+  const match = urlAtual.match(/\/trail\/([a-zA-Z0-9]+)$/);
   const extractedId = match ? match[1] : null;
 
   const {
