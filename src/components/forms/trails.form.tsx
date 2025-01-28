@@ -8,6 +8,10 @@ import { TrailSchemaData, trailsSchema } from '@/lib/schemas/trail.schema';
 import { createTrail, updateTrailById } from '@/services/studioMaker.service';
 
 export function TrailForm({ callback, trail, setDialog, journeyId }: any) {
+  const urlAtual = window.location.href;
+  const match = urlAtual.match(/\/trail\/([a-zA-Z0-9]+)$/);
+  const extractedId = match ? match[1] : null;
+
   const {
     register,
     handleSubmit,
@@ -16,23 +20,24 @@ export function TrailForm({ callback, trail, setDialog, journeyId }: any) {
     resolver: zodResolver(trailsSchema),
     defaultValues: {
       name: trail ? trail.name : '',
+      journeyId: extractedId
     },
   });
 
   const onSubmit: SubmitHandler<TrailSchemaData> = async (data) => {
     const response = trail
       ? await updateTrailById({
-          id: trail._id,
-          data,
-          token: JSON.parse(localStorage.getItem('token')!),
-        })
+        id: trail._id,
+        data,
+        token: JSON.parse(localStorage.getItem('token')!),
+      })
       : await createTrail({
-          data: {
-            journeyId: journeyId,
-            ...data,
-          },
-          token: JSON.parse(localStorage.getItem('token')!),
-        });
+        data: {
+          journeyId: journeyId,
+          ...data,
+        },
+        token: JSON.parse(localStorage.getItem('token')!),
+      });
     if (response.data) {
       toast.success('Trail com sucesso!');
       callback(response.data);
