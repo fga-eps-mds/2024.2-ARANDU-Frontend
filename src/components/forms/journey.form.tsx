@@ -13,6 +13,11 @@ import {
 } from '@/services/studioMaker.service';
 
 export function JourneyForm({ callback, journey, setDialog, pointId }: any) {
+
+  const urlAtual = window.location.href;
+  const match = urlAtual.match(/\/journey\/([a-zA-Z0-9]+)$/);
+  const extractedId = match ? match[1] : null;
+
   const {
     register,
     handleSubmit,
@@ -21,20 +26,21 @@ export function JourneyForm({ callback, journey, setDialog, pointId }: any) {
     resolver: zodResolver(journeySchema),
     defaultValues: {
       title: journey ? journey.title : '',
+      subjectId: extractedId
     },
   });
 
   const onSubmit: SubmitHandler<JourneySchemaData> = async (data) => {
     const response = journey
       ? await updateJourneyById({
-          id: journey._id,
-          data,
-          token: JSON.parse(localStorage.getItem('token')!),
-        })
+        id: journey._id,
+        data,
+        token: JSON.parse(localStorage.getItem('token')!),
+      })
       : await createJourney({
-          data: { pointId, ...data },
-          token: JSON.parse(localStorage.getItem('token')!),
-        });
+        data: { pointId, ...data },
+        token: JSON.parse(localStorage.getItem('token')!),
+      });
     if (response.data) {
       toast.success('Jornada com sucesso!');
       callback(response.data);
