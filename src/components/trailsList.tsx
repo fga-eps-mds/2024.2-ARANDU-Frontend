@@ -76,6 +76,10 @@ export default function TrailsListPage({
     if (action === 'gerenciar') {
       router.push(`/studio/${selectedTrail!._id}`);
     }
+    if (action === 'Visualizar') {
+      router.push(`/trail-page/${selectedTrail!._id}`);
+    }
+
   };
 
   const addTrail = (trail: Trail) => {
@@ -134,6 +138,9 @@ export default function TrailsListPage({
               </MenuItem>
               <MenuItem onClick={() => handleTrailAction('excluir')}>
                 Excluir
+              </MenuItem>
+              <MenuItem onClick={() => handleTrailAction('Visualizar')}>
+                Visualizar Trilha
               </MenuItem>
             </Menu>
           </>
