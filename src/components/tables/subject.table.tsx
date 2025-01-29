@@ -4,14 +4,11 @@ import {
     type MRT_ColumnDef,
     MRT_TableContainer as MrtTableContainer,
     MRT_Row,
-    MRT_PaginationState
 } from 'material-react-table';
 import { useRouter } from 'next/navigation';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Menu, MenuItem, IconButton } from '@mui/material';
 import { Subject } from '@/lib/interfaces/subjetc.interface';
-import { toast } from 'sonner';
 import { updateSubjectOrder } from '@/services/studioMaker.service';
+import Cell from "@/components/tables/subjectCell.table";
 
 interface SubjectTableProps {
     subjects: Subject[];
@@ -51,38 +48,13 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
                 header: '',
                 enableColumnFilter: false,
                 Cell: ({ row }: { row: { original: Subject } }) => (
-                    <>
-                        <IconButton
-                            onClick={(e) => {
-                                onMenuClick(e, row.original);
-                                setSelectedSubject(row.original);
-                            }}
-                            color="primary"
-                        >
-                            <MoreVertIcon />
-                        </IconButton>
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={onMenuClose}
-                        >
-                            <MenuItem onClick={() => onSubjectAction('editar')}>
-                                Editar Assunto
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    if (selectedSubject) {
-                                        router.push(`/journey/${selectedSubject._id}`);
-                                    }
-                                }}
-                            >
-                                Gerenciar Jornadas
-                            </MenuItem>
-                            <MenuItem onClick={() => onSubjectAction('excluir')}>
-                                Excluir
-                            </MenuItem>
-                        </Menu>
-                    </>
+                    <Cell
+                        anchorEl={anchorEl}
+                        onMenuClick={onMenuClick}
+                        onMenuClose={onMenuClose}
+                        onSubjectAction={onSubjectAction}
+                        subject={row.original}
+                    />
                 ),
             },
         ],
@@ -100,20 +72,22 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         columns,
         data,
         enableRowOrdering: true,
-        enablePagination: false,  // Desabilita a paginação
+        enablePagination: false,
         muiRowDragHandleProps: ({ table }) => ({
-            onDragEnd: async (): Promise<void> => {
-                const { draggingRow, hoveredRow } = table.getState();
-                if (hoveredRow && draggingRow) {
-                    const newData = [...data];
-                    newData.splice(
-                        (hoveredRow as MRT_Row<Subject>).index,
-                        0,
-                        newData.splice(draggingRow.index, 1)[0],
-                    );
-                    setData(newData);
-                    await updateSubjectOrder(newData);
-                }
+            onDragEnd: (): void => {
+                void (async () => {
+                    const { draggingRow, hoveredRow } = table.getState();
+                    if (hoveredRow && draggingRow) {
+                        const newData = [...data];
+                        newData.splice(
+                            (hoveredRow as MRT_Row<Subject>).index,
+                            0,
+                            newData.splice(draggingRow.index, 1)[0],
+                        );
+                        setData(newData);
+                        await updateSubjectOrder(newData);
+                    }
+                })();
             },
         }),
     });

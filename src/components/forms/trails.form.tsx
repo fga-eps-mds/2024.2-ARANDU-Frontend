@@ -9,7 +9,8 @@ import { createTrail, updateTrailById } from '@/services/studioMaker.service';
 
 export function TrailForm({ callback, trail, setDialog, journeyId }: any) {
   const urlAtual = window.location.href;
-  const match = urlAtual.match(/\/trail\/([a-zA-Z0-9]+)$/);
+  const e = /\/trail\/([a-zA-Z0-9]+)$/;
+  const match = e.exec(urlAtual);
   const extractedId = match ? match[1] : null;
 
   const {

@@ -79,7 +79,7 @@ const Sidebar: React.FC<SideBarProps> = ({ handleDrawerOpen, open }) => {
                 : true,
             )
             .map((item) => {
-              const href = item.href.replace('{id}', userId || '');
+              const href = item.href.replace('{id}', userId ?? '');
               return (
                 <li
                   key={href}
