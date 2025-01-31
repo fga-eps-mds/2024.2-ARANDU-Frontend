@@ -24,8 +24,10 @@ const Cell: React.FC<CellProps> = ({
     return (
         <>
             <IconButton
+                aria-label="menu-options"
                 onClick={(e) => onMenuClick(e, subject)}
                 color="primary"
+                title="more"
             >
                 <MoreVertIcon />
             </IconButton>
@@ -33,23 +35,33 @@ const Cell: React.FC<CellProps> = ({
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={onMenuClose}
+                title="Menu"
             >
-                <MenuItem onClick={() => onSubjectAction('editar')}>
+                <MenuItem
+                    onClick={() => onSubjectAction('editar')}
+                    aria-label="Editar Assunto"
+                >
                     Editar Assunto
                 </MenuItem>
                 <MenuItem
                     onClick={() => {
                         router.push(`/journey/${subject._id}`);
                     }}
+                    aria-label="Gerenciar_Jornadas"
                 >
                     Gerenciar Jornadas
                 </MenuItem>
-                <MenuItem onClick={() => onSubjectAction('excluir')}>
+                <MenuItem
+                    onClick={() => onSubjectAction('excluir')}
+                    title="Excluir"
+                    aria-label="Excluir Assunto"
+                >
                     Excluir
                 </MenuItem>
             </Menu>
         </>
     );
+
 };
 
 export default Cell;

@@ -417,7 +417,8 @@ describe('Serviço de Jornadas e Trilhas', () => {
     (studioMakerApi.get as jest.Mock).mockResolvedValue({ data: mockData });
     const subjects = await GetSubjects();
     expect(subjects).toEqual(mockData);
-    expect(studioMakerApi.get).toHaveBeenCalledWith('/subjects');
+    expect(studioMakerApi.get).toHaveBeenCalledWith('/subjects', expect.anything());
+
   });
 
   test('Deve falhar ao buscar subjects', async () => {
@@ -489,7 +490,7 @@ describe('Serviço de Jornadas e Trilhas', () => {
 
     const trails = await getTrails(journeyParams);
     expect(trails).toEqual(mockData);
-    expect(studioMakerApi.get).toHaveBeenCalledWith(`/trails/journey/${journeyParams.id}`);
+    expect(studioMakerApi.get).toHaveBeenCalledWith(`/trails/journey/${journeyParams.id}`, expect.anything());
   });
 
 });

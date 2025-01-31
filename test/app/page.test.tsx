@@ -15,7 +15,7 @@ describe('LandingPage', () => {
 
     render(<LandingPage />);
 
-    expect(screen.getByText('Calculus')).toBeInTheDocument();
+    expect(screen.getByText('Arandu')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
     expect(screen.getByText(/Matemática que/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /comece aqui/i })).toBeInTheDocument();
