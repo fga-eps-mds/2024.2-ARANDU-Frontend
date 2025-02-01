@@ -24,27 +24,16 @@ import {
 import Popup from '@/components/ui/popup';
 import { SubjectForm } from '@/components/forms/subject.form';
 import { toast } from 'sonner';
-import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen } from './subject.functions';
+import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen, fetchSubjects } from './subject.functions';
 
 export default function SubjectPage({
     params,
 }: {
     readonly params: { pointId: string };
 }) {
-    const fetchSubjects = async (): Promise<Subject[]> => {
-        let subjects: Subject[];
 
-        if (params.pointId == "admin") {
-            subjects = await GetSubjects();
-        } else {
-
-            subjects = await GetSubjectsByUserId(params.pointId);
-        }
-        subjects.sort((a, b) => a.order - b.order);
-        setListSubjects(subjects);
-        setFilteredSubjects(subjects);
-        return subjects;
-    };
+    const [listSubjects, setListSubjects] = useState<Subject[]>([]);
+    const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
 
     const {
         data = [],
@@ -52,11 +41,9 @@ export default function SubjectPage({
         error,
     } = useQuery<Subject[], Error>({
         queryKey: ['subjects', params.pointId],
-        queryFn: fetchSubjects,
+        queryFn: () => fetchSubjects(params, setListSubjects, setFilteredSubjects), // Corrigido: Chamando a função corretamente com uma função anônima
     });
 
-    const [listSubjects, setListSubjects] = useState<Subject[]>([]);
-    const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);

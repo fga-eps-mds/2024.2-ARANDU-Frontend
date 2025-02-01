@@ -94,7 +94,8 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
 
 
 
-    return <MrtTableContainer table={table} />;
+    return <MrtTableContainer table={table}
+        role="table" />;
 };
 
 export default SubjectTable;
