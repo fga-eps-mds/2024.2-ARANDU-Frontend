@@ -1,10 +1,10 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import SubjectPage from '@/app/subjects/[...pointId]/page';
 import { deleteSubjects, GetSubjects, GetSubjectsByUserId } from '@/services/studioMaker.service';
 import { toast } from 'sonner';
-import { fetchSubjects, handleMenuOpen, handleRemoveSubject, handleSubjectAction, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
+import { addSubject, fetchSubjects, handleMenuClose, handleMenuOpen, handleRemoveSubject, handleSubjectAction, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
 import { Subject } from '@/lib/interfaces/subjetc.interface';
 import { useState } from 'react';
 
@@ -51,9 +51,14 @@ jest.mock('sonner', () => ({
 describe('SubjectPage', () => {
     const queryClient = new QueryClient();
 
+    jest.mock('@/services/studioMaker.service', () => ({
+        fetchSubjects: jest.fn().mockRejectedValue(new Error('Falha na requisição')),
+    }));
+
     beforeEach(() => {
         jest.clearAllMocks();
         (GetSubjects as jest.Mock).mockResolvedValue(mockSubjects);
+        (GetSubjectsByUserId as jest.Mock).mockResolvedValue(mockSubjects);
     });
 
     it('deve exibir o indicador de carregamento enquanto os dados são buscados', async () => {
@@ -83,7 +88,7 @@ describe('SubjectPage', () => {
         // Verificar se o indicador de carregamento (progressbar) está visível
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
-    it('deve ordenar as disciplinas pela propriedade order e chamar setListSubjects e setFilteredSubjects corretamente', async () => {
+    it('deve ordenar as disciplinas pela propriedade order e chamar setListSubjects e setFilteredSubjects corretamente "admin"', async () => {
         // Mock da função de estado
         const setListSubjects = jest.fn();
         const setFilteredSubjects = jest.fn();
@@ -110,8 +115,79 @@ describe('SubjectPage', () => {
             { ...mockSubjects[1], order: 2 },
         ]);
     });
+    it('deve ordenar as disciplinas pela propriedade order e chamar setListSubjects e setFilteredSubjects corretamente "aluno"', async () => {
+        const setListSubjects = jest.fn();
+        const setFilteredSubjects = jest.fn();
 
+        const params = { pointId: '1234' };
+
+        const subjects = await fetchSubjects(params, setListSubjects, setFilteredSubjects);
+
+        expect(subjects[0].order).toBe(1);
+        expect(subjects[1].order).toBe(2);
+
+        expect(setListSubjects).toHaveBeenCalledWith(subjects);
+        expect(setFilteredSubjects).toHaveBeenCalledWith(subjects);
+
+        expect(subjects).toEqual([
+            { ...mockSubjects[0], order: 1 },
+            { ...mockSubjects[1], order: 2 },
+        ]);
+    });
+
+    it('deve exibir uma mensagem de erro quando a requisição falhar', async () => {
+        // Mocka o serviço para rejeitar a requisição
+        (GetSubjects as jest.Mock).mockRejectedValue(new Error('Falha na requisição'));
+
+        // Renderiza o componente SubjectPage
+        render(
+            <QueryClientProvider client={queryClient}>
+                <SubjectPage params={{ pointId: '123' }} />
+            </QueryClientProvider>
+        );
+
+        const errorMessage = screen.queryByText(/Error fetching subjects/i);
+
+        // Como o erro deve ser exibido imediatamente após a falha da requisição
+        expect(errorMessage)
+    });
 });
+
+
+describe('addSubject', () => {
+    it('Deve Adicionar uma nova Disciplina', async () => {
+        const { result } = renderHook(() => {
+            const [listSubjects, setListSubjects] = useState(mockSubjects);
+
+            return { listSubjects, setListSubjects };
+        });
+
+        const newSubject: Subject = {
+            _id: '1',
+            name: 'Matemática Avançada',
+            shortName: 'MAT',
+            description: 'Disciplina de Matemática Avançada',
+            user: 'user1',
+            journeys: ['journey1'],
+            order: 1,
+            createdAt: '2024-01-01T12:00:00Z',
+            updatedAt: '2024-01-02T12:00:00Z',
+            __v: 0,
+        };
+
+        act(() => {
+            addSubject(newSubject, result.current.listSubjects, result.current.setListSubjects);
+        });
+
+        expect(result.current.listSubjects).toEqual([
+            mockSubjects[0],
+            newSubject,
+            mockSubjects[1]
+
+        ]);
+    })
+
+})
 
 
 describe('updateSubject', () => {
@@ -296,3 +372,14 @@ describe('handleMenuOpen', () => {
         expect(setSelectedSubject).toHaveBeenCalledWith(subject);
     });
 });
+
+describe("handleMenuClose", () => {
+    it("Teste do handleMenuClose", async () => {
+        const setAnchorEl = jest.fn(); // Mock da função de estado
+
+        handleMenuClose(setAnchorEl); // Chama a função com o mock
+
+        expect(setAnchorEl).toHaveBeenCalledWith(null); // Verifica
+
+    })
+})

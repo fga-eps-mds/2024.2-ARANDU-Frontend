@@ -90,3 +90,7 @@ export const fetchSubjects = async (
 
     return subjects;
 };
+
+export const handleMenuClose = (setAnchorEl: React.Dispatch<React.SetStateAction<null | HTMLElement>>,) => {
+    setAnchorEl(null);
+};

@@ -24,7 +24,7 @@ import {
 import Popup from '@/components/ui/popup';
 import { SubjectForm } from '@/components/forms/subject.form';
 import { toast } from 'sonner';
-import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen, fetchSubjects } from './subject.functions';
+import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen, fetchSubjects, handleMenuClose } from './subject.functions';
 
 export default function SubjectPage({
     params,
@@ -69,11 +69,6 @@ export default function SubjectPage({
         }
     }, [searchQuery, listSubjects]);
 
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
-
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -82,7 +77,8 @@ export default function SubjectPage({
         return <Typography>Error fetching subjects</Typography>;
     }
 
-    return (
+
+    const SubjectPage = (
         <Box
             sx={{
                 padding: 2,
@@ -95,17 +91,15 @@ export default function SubjectPage({
             <Box sx={{ width: '100%', maxWidth: 800, marginBottom: 2 }}>
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </Box>
+            <Box sx={{ width: '100%', maxWidth: 800 }}><SubjectTable
+                subjects={filteredSubjects}
+                anchorEl={anchorEl}
+                onMenuClick={(event, subject) => handleMenuOpen(event, subject, setAnchorEl, setSelectedSubject)}
+                onMenuClose={() => handleMenuClose(setAnchorEl)}
+                onSubjectAction={(action) => handleSubjectAction(action, setEditionDialogOpen, setExclusionDialogOpen)}
+            /></Box>
 
-            <Box sx={{ width: '100%', maxWidth: 800, marginBottom: 2 }}>
-                <SubjectTable
-                    subjects={filteredSubjects}
-                    anchorEl={anchorEl}
-                    onMenuClick={(event, subject) => handleMenuOpen(event, subject, setAnchorEl, setSelectedSubject)}
-                    onMenuClose={handleMenuClose}
-                    onSubjectAction={(action) => handleSubjectAction(action, setEditionDialogOpen, setExclusionDialogOpen)}
 
-                />
-            </Box>
 
             <ButtonRed onClick={() => setCreateDialogOpen(true)}>
                 Nova Disciplina
@@ -157,6 +151,9 @@ export default function SubjectPage({
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
+
+    return SubjectPage
+
 }

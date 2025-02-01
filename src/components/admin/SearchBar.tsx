@@ -13,6 +13,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChange }) => {
       variant="outlined"
       fullWidth
       value={value}
+      role="searchbox"
       onChange={(e) => onChange(e.target.value)}
       InputProps={{
         startAdornment: (
