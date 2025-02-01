@@ -25,6 +25,7 @@ export function SingInForm() {
         'refresh',
         JSON.stringify(session?.user.refreshToken),
       );
+      localStorage.setItem('id', JSON.stringify(session.user.id))
       toast.success('Login realizado com sucesso!');
       router.push('/home');
     }

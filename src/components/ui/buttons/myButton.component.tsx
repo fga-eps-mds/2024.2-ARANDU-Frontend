@@ -39,7 +39,7 @@ const CustomButton = styled(Button)<{
   backgroundColor: btncolor,
   border: `1px solid ${subcolor}`,
   boxShadow: `0px 5px 0 ${subcolor}`,
-  marginTop: '7px',
+  marginTop: '0',
   color: btncolor === '#FFFAFA' ? '#000000' : '#FFFFFF',
   fontWeight: bold ? 'bold' : 'normal',
   '&:hover': {
