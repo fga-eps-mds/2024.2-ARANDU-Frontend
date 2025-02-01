@@ -2,12 +2,12 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import SubjectPage from '@/app/subjects/[...pointId]/page';
-import { GetSubjects, GetSubjectsByUserId } from '@/services/studioMaker.service';
+import { deleteSubjects, GetSubjects, GetSubjectsByUserId } from '@/services/studioMaker.service';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { subjectSchema } from '@/lib/schemas/subjects.schema';
 import { Subject } from '@/lib/interfaces/subjetc.interface';
-import { addSubject, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
+import { addSubject, handleRemoveSubject, handleSubjectAction, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
 // Mock de dados
 const mockSubjects = [
     {
@@ -40,6 +40,7 @@ const mockSubjects = [
 jest.mock('@/services/studioMaker.service', () => ({
     GetSubjectsByUserId: jest.fn(),
     GetSubjects: jest.fn(),
+    deleteSubjects: jest.fn(),
 }));
 
 // Mock do Toast
@@ -147,7 +148,115 @@ describe('SubjectPage', () => {
             mockSubjects[1], // O segundo item permanece inalterado
         ]);
     });
-
-
 }
 );
+describe("handleSubjectAction", () => {
+    it("Deve abrir o Menu Editar se clicado em editar", async () => {
+        const setEditionDialogOpen = jest.fn();
+        const setExclusionDialogOpen = jest.fn();
+
+        handleSubjectAction("editar", setEditionDialogOpen, setExclusionDialogOpen);
+
+        expect(setEditionDialogOpen).toHaveBeenCalledWith(true);
+        expect(setExclusionDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("Deve abrir o Menu Excluir se clicado em Excluir", async () => {
+        const setEditionDialogOpen = jest.fn();
+        const setExclusionDialogOpen = jest.fn();
+
+        handleSubjectAction("excluir", setEditionDialogOpen, setExclusionDialogOpen);
+
+        expect(setExclusionDialogOpen).toHaveBeenCalledWith(true);
+        expect(setEditionDialogOpen).not.toHaveBeenCalled();
+    });
+});
+describe("handleRemoveSubject", () => {
+
+    const mockSubjectsRemove = {
+        _id: '2',
+        name: 'História',
+        shortName: 'HIST',
+        description: 'Disciplina de História',
+        user: 'user2',
+        journeys: ['journey2'],
+        order: 2,
+        createdAt: '2024-01-03T12:00:00Z',
+        updatedAt: '2024-01-04T12:00:00Z',
+        __v: 0,
+    };
+    it("Deve excluir a disciplina se solicitado", async () => {
+        // Simulando a resposta de sucesso do deleteSubjects
+        (deleteSubjects as jest.Mock).mockResolvedValue({ data: true }); // Mock de resposta bem-sucedida
+
+        const { result } = renderHook(() => {
+            const [listSubjects, setListSubjects] = useState(mockSubjects);
+            return { listSubjects, setListSubjects };
+        });
+
+        const setExclusionDialogOpen = jest.fn();
+
+        await act(async () => {
+            await handleRemoveSubject(
+                mockSubjectsRemove,
+                result.current.listSubjects,
+                result.current.setListSubjects,
+                setExclusionDialogOpen
+            );
+        });
+
+        // Verifica se a lista de subjects foi atualizada corretamente (a disciplina 'História' deve ser removida)
+        expect(result.current.listSubjects).toEqual([
+            {
+                _id: '1',
+                name: 'Matemática',
+                shortName: 'MAT',
+                description: 'Disciplina de Matemática',
+                user: 'user1',
+                journeys: ['journey1'],
+                order: 1,
+                createdAt: '2024-01-01T12:00:00Z',
+                updatedAt: '2024-01-02T12:00:00Z',
+                __v: 0,
+            },
+        ]);
+
+        // Verificando se o setExclusionDialogOpen foi chamado com o valor correto
+        expect(setExclusionDialogOpen).toHaveBeenCalledWith(false);
+
+        // Verificando se a mensagem de sucesso foi chamada corretamente
+        expect(toast.success).toHaveBeenCalledWith("Disciplina excluída com sucesso!");
+    });
+    it("Deve excluir a disciplina se solicitado", async () => {
+        // Simulando a resposta de erro do deleteSubjects (sem a propriedade 'data' ou com erro na resposta)
+        (deleteSubjects as jest.Mock).mockResolvedValue({}); // Resposta sem a propriedade 'data'
+
+        const { result } = renderHook(() => {
+            const [listSubjects, setListSubjects] = useState(mockSubjects);
+            return { listSubjects, setListSubjects };
+        });
+
+        const setExclusionDialogOpen = jest.fn();
+
+        await act(async () => {
+            await handleRemoveSubject(
+                mockSubjectsRemove,
+                result.current.listSubjects,
+                result.current.setListSubjects,
+                setExclusionDialogOpen
+            );
+        });
+
+        // Aqui o teste vai falhar, pois a resposta não contém a propriedade 'data'
+        // Verificando se a lista de subjects não foi modificada (a disciplina 'História' não foi removida)
+        expect(result.current.listSubjects).toEqual(mockSubjects);  // Espera que a lista original não tenha mudado
+
+        // Verificando se o setExclusionDialogOpen não foi chamado com o valor correto
+        expect(setExclusionDialogOpen).not.toHaveBeenCalled();
+
+        // Verificando se a mensagem de erro foi chamada corretamente
+        expect(toast.error).toHaveBeenCalledWith('Erro ao excluir disciplina. Tente novamente mais tarde!');
+    });
+
+
+});

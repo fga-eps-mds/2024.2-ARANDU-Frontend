@@ -24,7 +24,7 @@ import {
 import Popup from '@/components/ui/popup';
 import { SubjectForm } from '@/components/forms/subject.form';
 import { toast } from 'sonner';
-import { updateSubject, addSubject } from './subject.functions';
+import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen } from './subject.functions';
 
 export default function SubjectPage({
     params,
@@ -83,35 +83,8 @@ export default function SubjectPage({
     }, [searchQuery, listSubjects]);
 
 
-    const handleMenuOpen = (
-        event: React.MouseEvent<HTMLButtonElement>,
-        subject: Subject,
-    ) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedSubject(subject);
-    };
-
     const handleMenuClose = () => {
         setAnchorEl(null);
-    };
-
-    const handleSubjectAction = (action: string) => {
-        if (action === 'editar') setEditionDialogOpen(true);
-        if (action === 'excluir') setExclusionDialogOpen(true);
-    };
-
-    const handleRemoveSubject = async (subject: Subject) => {
-        const response = await deleteSubjects({
-            id: subject._id,
-            token: JSON.parse(localStorage.getItem('token')!),
-        });
-        if (response.data) {
-            toast.success('Disciplina excluída com sucesso!');
-            setListSubjects(listSubjects.filter((s) => s._id !== subject._id));
-            setExclusionDialogOpen(false);
-        } else {
-            toast.error('Erro ao excluir disciplina. Tente novamente mais tarde!');
-        }
     };
 
     if (isLoading) {
@@ -140,9 +113,10 @@ export default function SubjectPage({
                 <SubjectTable
                     subjects={filteredSubjects}
                     anchorEl={anchorEl}
-                    onMenuClick={handleMenuOpen}
+                    onMenuClick={(event, subject) => handleMenuOpen(event, subject, setAnchorEl, setSelectedSubject)}
                     onMenuClose={handleMenuClose}
-                    onSubjectAction={handleSubjectAction}
+                    onSubjectAction={(action) => handleSubjectAction(action, setEditionDialogOpen, setExclusionDialogOpen)}
+
                 />
             </Box>
 
@@ -189,7 +163,7 @@ export default function SubjectPage({
                         Cancelar
                     </Button>
                     <Button
-                        onClick={() => handleRemoveSubject(selectedSubject!)}
+                        onClick={() => handleRemoveSubject(selectedSubject!, listSubjects, setListSubjects, setExclusionDialogOpen)}
                         color="primary"
                     >
                         Confirmar
