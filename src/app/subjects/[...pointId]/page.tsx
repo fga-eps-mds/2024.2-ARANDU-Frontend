@@ -24,6 +24,7 @@ import {
 import Popup from '@/components/ui/popup';
 import { SubjectForm } from '@/components/forms/subject.form';
 import { toast } from 'sonner';
+import { updateSubject, addSubject } from './subject.functions';
 
 export default function SubjectPage({
     params,
@@ -99,18 +100,6 @@ export default function SubjectPage({
         if (action === 'excluir') setExclusionDialogOpen(true);
     };
 
-    const addSubject = (subject: Subject) => {
-        setListSubjects(
-            [...listSubjects, subject].sort((a, b) => a.order - b.order),
-        );
-    };
-
-    const updateSubject = (subject: Subject) => {
-        setListSubjects(
-            listSubjects.map((s) => (s._id === subject._id ? subject : s)),
-        );
-    };
-
     const handleRemoveSubject = async (subject: Subject) => {
         const response = await deleteSubjects({
             id: subject._id,
@@ -167,10 +156,11 @@ export default function SubjectPage({
                 title="Editar Disciplina"
             >
                 <SubjectForm
-                    callback={updateSubject}
+                    callback={(subject: Subject) => updateSubject(subject, listSubjects, setListSubjects)}
                     subject={selectedSubject!}
                     setDialog={setEditionDialogOpen}
                 />
+
             </Popup>
 
             <Popup
@@ -179,7 +169,7 @@ export default function SubjectPage({
                 title="Criar Nova Disciplina"
             >
                 <SubjectForm
-                    callback={addSubject}
+                    callback={(subject: Subject) => addSubject(subject, listSubjects, setListSubjects)}
                     setDialog={setCreateDialogOpen}
                 />
             </Popup>
