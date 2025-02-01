@@ -1,13 +1,13 @@
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import SubjectPage from '@/app/subjects/[...pointId]/page';
 import { deleteSubjects, GetSubjects, GetSubjectsByUserId } from '@/services/studioMaker.service';
 import { toast } from 'sonner';
-import { useState } from 'react';
-import { subjectSchema } from '@/lib/schemas/subjects.schema';
+import { fetchSubjects, handleMenuOpen, handleRemoveSubject, handleSubjectAction, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
 import { Subject } from '@/lib/interfaces/subjetc.interface';
-import { addSubject, handleRemoveSubject, handleSubjectAction, updateSubject } from '@/app/subjects/[...pointId]/subject.functions';
+import { useState } from 'react';
+
 // Mock de dados
 const mockSubjects = [
     {
@@ -56,9 +56,8 @@ describe('SubjectPage', () => {
         (GetSubjects as jest.Mock).mockResolvedValue(mockSubjects);
     });
 
-
-
     it('deve exibir o indicador de carregamento enquanto os dados são buscados', async () => {
+        // Mock para simular carregamento, mantendo a promise pendente
         (GetSubjects as jest.Mock).mockReturnValue(new Promise(() => { }));
 
         render(
@@ -67,10 +66,12 @@ describe('SubjectPage', () => {
             </QueryClientProvider>
         );
 
+        // Verificar se o indicador de carregamento (progressbar) está visível
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
-    it('getsubjectuserid', async () => {
+    it('deve exibir o indicador de carregamento enquanto os dados são buscados com GetSubjectsByUserId', async () => {
+        // Mock para simular carregamento, mantendo a promise pendente
         (GetSubjectsByUserId as jest.Mock).mockReturnValue(new Promise(() => { }));
 
         render(
@@ -79,45 +80,41 @@ describe('SubjectPage', () => {
             </QueryClientProvider>
         );
 
+        // Verificar se o indicador de carregamento (progressbar) está visível
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
+    it('deve ordenar as disciplinas pela propriedade order e chamar setListSubjects e setFilteredSubjects corretamente', async () => {
+        // Mock da função de estado
+        const setListSubjects = jest.fn();
+        const setFilteredSubjects = jest.fn();
 
+        // Definindo os parâmetros para o teste
+        const params = { pointId: 'admin' };
 
+        // Função fetchSubjects simulada dentro do teste
 
-    it('deve adicionar um novo subject e ordenar a lista pela propriedade order', () => {
+        // Chama a função de fetch e passa os parâmetros corretos
+        const subjects = await fetchSubjects(params, setListSubjects, setFilteredSubjects);
 
-        const newSubject: Subject = {
-            _id: '3',
-            name: 'Geografia',
-            shortName: 'GEO',
-            description: 'Disciplina de Geografia',
-            user: 'user3',
-            journeys: ['journey3'],
-            order: 3,
-            createdAt: '2024-02-01T12:00:00Z',
-            updatedAt: '2024-02-01T12:00:00Z',
-            __v: 0,
-        };
+        // Espera a ordenação ser feita corretamente
+        expect(subjects[0].order).toBe(1); // A disciplina com order 1 deve ser a primeira
+        expect(subjects[1].order).toBe(2); // A disciplina com order 2 deve ser a segunda
 
-        // Hook para gerenciar o estado
-        const { result } = renderHook(() => {
-            const [listSubjects, setListSubjects] = useState(mockSubjects);
-            return { listSubjects, setListSubjects };
-        });
+        // Verifica se as funções de estado foram chamadas corretamente
+        expect(setListSubjects).toHaveBeenCalledWith(subjects); // Checa se a lista foi setada corretamente
+        expect(setFilteredSubjects).toHaveBeenCalledWith(subjects); // Checa se a lista filtrada foi setada corretamente
 
-        // Chamar a função addSubject
-        act(() => {
-            addSubject(newSubject, result.current.listSubjects, result.current.setListSubjects);
-        });
-
-        // Verificar se o novo subject foi adicionado corretamente e se a lista está ordenada
-        expect(result.current.listSubjects).toEqual([
-            mockSubjects[0],  // História (order: 1)
-            mockSubjects[1],  // Matemática (order: 2)
-            newSubject,          // Geografia (order: 3)
+        // Verifica o retorno da função
+        expect(subjects).toEqual([
+            { ...mockSubjects[0], order: 1 },
+            { ...mockSubjects[1], order: 2 },
         ]);
     });
 
+});
+
+
+describe('updateSubject', () => {
     it("Deve atualizar a lista de subjects corretamente", async () => {
         const { result } = renderHook(() => {
             const [listSubjects, setListSubjects] = useState(mockSubjects);
@@ -148,9 +145,9 @@ describe('SubjectPage', () => {
             mockSubjects[1], // O segundo item permanece inalterado
         ]);
     });
-}
-);
-describe("handleSubjectAction", () => {
+});
+
+describe('handleSubjectAction', () => {
     it("Deve abrir o Menu Editar se clicado em editar", async () => {
         const setEditionDialogOpen = jest.fn();
         const setExclusionDialogOpen = jest.fn();
@@ -171,7 +168,8 @@ describe("handleSubjectAction", () => {
         expect(setEditionDialogOpen).not.toHaveBeenCalled();
     });
 });
-describe("handleRemoveSubject", () => {
+
+describe('handleRemoveSubject', () => {
 
     const mockSubjectsRemove = {
         _id: '2',
@@ -185,6 +183,7 @@ describe("handleRemoveSubject", () => {
         updatedAt: '2024-01-04T12:00:00Z',
         __v: 0,
     };
+
     it("Deve excluir a disciplina se solicitado", async () => {
         // Simulando a resposta de sucesso do deleteSubjects
         (deleteSubjects as jest.Mock).mockResolvedValue({ data: true }); // Mock de resposta bem-sucedida
@@ -227,7 +226,8 @@ describe("handleRemoveSubject", () => {
         // Verificando se a mensagem de sucesso foi chamada corretamente
         expect(toast.success).toHaveBeenCalledWith("Disciplina excluída com sucesso!");
     });
-    it("Deve excluir a disciplina se solicitado", async () => {
+
+    it("Deve excluir a disciplina se solicitado com erro", async () => {
         // Simulando a resposta de erro do deleteSubjects (sem a propriedade 'data' ou com erro na resposta)
         (deleteSubjects as jest.Mock).mockResolvedValue({}); // Resposta sem a propriedade 'data'
 
@@ -257,6 +257,42 @@ describe("handleRemoveSubject", () => {
         // Verificando se a mensagem de erro foi chamada corretamente
         expect(toast.error).toHaveBeenCalledWith('Erro ao excluir disciplina. Tente novamente mais tarde!');
     });
+});
 
+describe('handleMenuOpen', () => {
+    it('deve atualizar o estado anchorEl e selectedSubject ao clicar no botão', () => {
+        // Simula os mocks para as funções setAnchorEl e setSelectedSubject
+        const setAnchorEl = jest.fn();
+        const setSelectedSubject = jest.fn();
 
+        // Cria um subject esperado para o teste
+        const subject: Subject = {
+            _id: '1',
+            name: 'Matemática',
+            shortName: 'MAT',
+            description: 'Disciplina de Matemática',
+            user: 'user1',
+            journeys: ['journey1'],
+            order: 1,
+            createdAt: '2024-01-01T12:00:00Z',
+            updatedAt: '2024-01-02T12:00:00Z',
+            __v: 0,
+        };
+
+        // Simula um MouseEvent
+        const event = {
+            currentTarget: document.createElement('button'), // Cria um botão fictício
+        } as React.MouseEvent<HTMLButtonElement>;
+
+        // Chama a função handleMenuOpen diretamente
+        act(() => {
+            handleMenuOpen(event, subject, setAnchorEl, setSelectedSubject);
+        });
+
+        // Verifica se setAnchorEl foi chamado com o valor correto
+        expect(setAnchorEl).toHaveBeenCalledWith(event.currentTarget);
+
+        // Verifica se setSelectedSubject foi chamado com o subject correto
+        expect(setSelectedSubject).toHaveBeenCalledWith(subject);
+    });
 });
