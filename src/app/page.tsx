@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import roboProfessor from '@/public/robo_professor.png';
 import MyButton from '@/components/ui/buttons/myButton.component';
 import { useSession } from 'next-auth/react';
+import { amarante } from '@/components/ui/fonts/fonts';
 
 export default function LandingPage() {
   const { data: session } = useSession();
@@ -21,7 +22,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#fffafa]">
       <header className="w-full flex justify-between p-4">
-        <h1 className="text-4xl font-bold text-[#1F1F1F]">Calculus</h1>
+        <h1 className={`text-4xl ${amarante.className} font-bold text-[#1F1F1F]`}>ARANDU</h1>
         <Link href="/login">
           <MyButton width="120px" height="50px" color="white" bold>
             Login

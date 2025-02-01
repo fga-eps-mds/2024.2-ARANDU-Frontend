@@ -1,9 +1,9 @@
 import { Box, Grid, Link } from '@mui/material';
 import Image from 'next/image';
-import calcuclusLogo from '@/public/calculus-logo.svg';
 import { GoogleAuthButton } from '@/components/ui/buttons/googleAuth.button';
 import { MicrosoftAuthButton } from '@/components/ui/buttons/microsoftAuth.button';
 import { SingInForm } from '@/components/forms/signInForm';
+import LogoBlack from '@/public/Logo-Black-White.svg'
 
 export default function LoginPage() {
   return (
@@ -12,7 +12,7 @@ export default function LoginPage() {
         <Box className="flex flex-col justify-around mb-2">
           <Image
             className="self-center"
-            src={calcuclusLogo}
+            src={LogoBlack}
             alt="Logo"
             width={96}
             height={96}

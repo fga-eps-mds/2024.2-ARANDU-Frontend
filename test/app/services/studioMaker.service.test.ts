@@ -13,9 +13,25 @@ import {
   createStartPoint,
   updateStartPointById,
   deleteStartPoint,
+  GetSubjects,
+  GetSubjectsByUserId,
+  createSubject,
+  updateSubjectById,
+  updateSubjectOrder,
+  deleteSubjects,
+  getJourneysByPoint,
+  getContentsByTrailId,
+  getContentById,
+  updateContentOrder,
+  addJourneyToUser,
+  getTrail,
+  findContentsByTrailId,
+  getContent,
+  updatePointOrder,
+  updateJourneysOrder,
+  updateTrailsOrder
 } from '@/services/studioMaker.service';
 import { studioMakerApi } from '@/services/apis.service';
-
 jest.mock('@/services/apis.service');
 
 describe('Serviço de Jornadas e Trilhas', () => {
@@ -395,4 +411,87 @@ describe('Serviço de Jornadas e Trilhas', () => {
 
     await expect(getJourney(id)).rejects.toThrow('Falha ao buscar jornada');
   });
+
+  test('Deve retornar todos os subjects', async () => {
+    const mockData = [{ id: '1', name: 'Subject Teste' }];
+    (studioMakerApi.get as jest.Mock).mockResolvedValue({ data: mockData });
+    const subjects = await GetSubjects();
+    expect(subjects).toEqual(mockData);
+    expect(studioMakerApi.get).toHaveBeenCalledWith('/subjects', expect.anything());
+
+  });
+
+  test('Deve falhar ao buscar subjects', async () => {
+    (studioMakerApi.get as jest.Mock).mockRejectedValue(new Error('Falha ao buscar subjects'));
+    await expect(GetSubjects()).rejects.toThrow('Falha ao buscar subjects');
+  });
+
+  test('Deve criar um novo subject com sucesso', async () => {
+    const newSubject = { data: { id: '1', name: 'Novo Subject' }, token: 'fake-token' };
+    (studioMakerApi.post as jest.Mock).mockResolvedValue({ data: newSubject.data });
+
+    const result = await createSubject(newSubject);
+    expect(result.data).toEqual(newSubject.data);
+    expect(studioMakerApi.post).toHaveBeenCalledWith('/subjects', newSubject.data, {
+      headers: { Authorization: `Bearer ${newSubject.token}` },
+    });
+  });
+
+  test('Deve atualizar um subject por ID com sucesso', async () => {
+    const subjectId = { id: '1', token: 'fake-token' };
+    const mockData = { id: '1', name: 'Subject Atualizado' };
+    (studioMakerApi.patch as jest.Mock).mockResolvedValue({ data: mockData });
+
+    const result = await updateSubjectById({ ...subjectId, data: mockData });
+    expect(result.data).toEqual(mockData);
+    expect(studioMakerApi.patch).toHaveBeenCalledWith(`/subjects/${subjectId.id}`, mockData, {
+      headers: { Authorization: `Bearer ${subjectId.token}` },
+    });
+  });
+
+  test('Deve falhar ao atualizar um subject', async () => {
+    const subjectId = { id: '1', token: 'fake-token' };
+    (studioMakerApi.patch as jest.Mock).mockRejectedValue(new Error('Falha ao atualizar subject'));
+    const result = await updateSubjectById({ ...subjectId, data: {} });
+    if (result.error instanceof Error) {
+      expect(result.error.message).toBe('Falha ao atualizar subject');
+    } else {
+      throw new Error('Erro esperado não é uma instância de Error');
+    }
+  });
+
+  test('Deve excluir um subject por ID com sucesso', async () => {
+    const subjectId = { id: '1', token: 'fake-token' };
+    const mockData = { success: true };
+    (studioMakerApi.delete as jest.Mock).mockResolvedValue({ data: mockData });
+
+    const result = await deleteSubjects(subjectId);
+    expect(result.data).toEqual(mockData);
+    expect(studioMakerApi.delete).toHaveBeenCalledWith(`/subjects/${subjectId.id}`, {
+      headers: { Authorization: `Bearer ${subjectId.token}` },
+    });
+  });
+
+  test('Deve falhar ao excluir um subject', async () => {
+    const subjectId = { id: '1', token: 'fake-token' };
+    (studioMakerApi.delete as jest.Mock).mockRejectedValue(new Error('Falha ao excluir subject'));
+    const result = await deleteSubjects(subjectId);
+    if (result.error instanceof Error) {
+      expect(result.error.message).toBe('Falha ao excluir subject');
+    } else {
+      throw new Error('Erro esperado não é uma instância de Error');
+    }
+  });
+
+  test('Deve retornar as trilhas de uma jornada com sucesso', async () => {
+    const mockData = [{ id: '1', name: 'Trilha Teste' }];
+    const journeyParams = { id: '123', token: 'fake-token' };
+    (studioMakerApi.get as jest.Mock).mockResolvedValue({ data: mockData });
+
+    const trails = await getTrails(journeyParams);
+    expect(trails).toEqual(mockData);
+    expect(studioMakerApi.get).toHaveBeenCalledWith(`/trails/journey/${journeyParams.id}`, expect.anything());
+  });
+
 });
+
