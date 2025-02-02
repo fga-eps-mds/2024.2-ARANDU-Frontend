@@ -24,26 +24,16 @@ import {
 import Popup from '@/components/ui/popup';
 import { SubjectForm } from '@/components/forms/subject.form';
 import { toast } from 'sonner';
+import { updateSubject, addSubject, handleSubjectAction, handleRemoveSubject, handleMenuOpen, fetchSubjects, handleMenuClose } from './subject.functions';
 
 export default function SubjectPage({
     params,
 }: {
     readonly params: { pointId: string };
 }) {
-    const fetchSubjects = async (): Promise<Subject[]> => {
-        let subjects: Subject[];
 
-        if (params.pointId == "admin") {
-            subjects = await GetSubjects();
-        } else {
-
-            subjects = await GetSubjectsByUserId(params.pointId);
-        }
-        subjects.sort((a, b) => a.order - b.order);
-        setListSubjects(subjects);
-        setFilteredSubjects(subjects);
-        return subjects;
-    };
+    const [listSubjects, setListSubjects] = useState<Subject[]>([]);
+    const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
 
     const {
         data = [],
@@ -51,11 +41,9 @@ export default function SubjectPage({
         error,
     } = useQuery<Subject[], Error>({
         queryKey: ['subjects', params.pointId],
-        queryFn: fetchSubjects,
+        queryFn: () => fetchSubjects(params, setListSubjects, setFilteredSubjects), // Corrigido: Chamando a função corretamente com uma função anônima
     });
 
-    const [listSubjects, setListSubjects] = useState<Subject[]>([]);
-    const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
@@ -81,50 +69,6 @@ export default function SubjectPage({
         }
     }, [searchQuery, listSubjects]);
 
-
-    const handleMenuOpen = (
-        event: React.MouseEvent<HTMLButtonElement>,
-        subject: Subject,
-    ) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedSubject(subject);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handleSubjectAction = (action: string) => {
-        if (action === 'editar') setEditionDialogOpen(true);
-        if (action === 'excluir') setExclusionDialogOpen(true);
-    };
-
-    const addSubject = (subject: Subject) => {
-        setListSubjects(
-            [...listSubjects, subject].sort((a, b) => a.order - b.order),
-        );
-    };
-
-    const updateSubject = (subject: Subject) => {
-        setListSubjects(
-            listSubjects.map((s) => (s._id === subject._id ? subject : s)),
-        );
-    };
-
-    const handleRemoveSubject = async (subject: Subject) => {
-        const response = await deleteSubjects({
-            id: subject._id,
-            token: JSON.parse(localStorage.getItem('token')!),
-        });
-        if (response.data) {
-            toast.success('Disciplina excluída com sucesso!');
-            setListSubjects(listSubjects.filter((s) => s._id !== subject._id));
-            setExclusionDialogOpen(false);
-        } else {
-            toast.error('Erro ao excluir disciplina. Tente novamente mais tarde!');
-        }
-    };
-
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -133,7 +77,8 @@ export default function SubjectPage({
         return <Typography>Error fetching subjects</Typography>;
     }
 
-    return (
+
+    const SubjectPage = (
         <Box
             sx={{
                 padding: 2,
@@ -146,16 +91,15 @@ export default function SubjectPage({
             <Box sx={{ width: '100%', maxWidth: 800, marginBottom: 2 }}>
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </Box>
+            <Box sx={{ width: '100%', maxWidth: 800 }}><SubjectTable
+                subjects={filteredSubjects}
+                anchorEl={anchorEl}
+                onMenuClick={(event, subject) => handleMenuOpen(event, subject, setAnchorEl, setSelectedSubject)}
+                onMenuClose={() => handleMenuClose(setAnchorEl)}
+                onSubjectAction={(action) => handleSubjectAction(action, setEditionDialogOpen, setExclusionDialogOpen)}
+            /></Box>
 
-            <Box sx={{ width: '100%', maxWidth: 800, marginBottom: 2 }}>
-                <SubjectTable
-                    subjects={filteredSubjects}
-                    anchorEl={anchorEl}
-                    onMenuClick={handleMenuOpen}
-                    onMenuClose={handleMenuClose}
-                    onSubjectAction={handleSubjectAction}
-                />
-            </Box>
+
 
             <ButtonRed onClick={() => setCreateDialogOpen(true)}>
                 Nova Disciplina
@@ -167,10 +111,11 @@ export default function SubjectPage({
                 title="Editar Disciplina"
             >
                 <SubjectForm
-                    callback={updateSubject}
+                    callback={(subject: Subject) => updateSubject(subject, listSubjects, setListSubjects)}
                     subject={selectedSubject!}
                     setDialog={setEditionDialogOpen}
                 />
+
             </Popup>
 
             <Popup
@@ -179,7 +124,7 @@ export default function SubjectPage({
                 title="Criar Nova Disciplina"
             >
                 <SubjectForm
-                    callback={addSubject}
+                    callback={(subject: Subject) => addSubject(subject, listSubjects, setListSubjects)}
                     setDialog={setCreateDialogOpen}
                 />
             </Popup>
@@ -199,13 +144,16 @@ export default function SubjectPage({
                         Cancelar
                     </Button>
                     <Button
-                        onClick={() => handleRemoveSubject(selectedSubject!)}
+                        onClick={() => handleRemoveSubject(selectedSubject!, listSubjects, setListSubjects, setExclusionDialogOpen)}
                         color="primary"
                     >
                         Confirmar
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
+
+    return SubjectPage
+
 }
