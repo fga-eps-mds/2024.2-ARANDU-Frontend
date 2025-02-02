@@ -80,7 +80,7 @@ describe('Serviço de Jornadas e Trilhas', () => {
     expect(studioMakerApi.get).toHaveBeenCalledWith(`/points/user/${userId}`);
   });
 
-  test('Deve falhar ao buscar pontos de partida do usuário', async () => {
+  it('Deve falhar ao buscar pontos de partida do usuário', async () => {
     const userId = '321';
     (studioMakerApi.get as jest.Mock).mockRejectedValue(
       new Error('Falha ao buscar pontos de partida do usuário'),
