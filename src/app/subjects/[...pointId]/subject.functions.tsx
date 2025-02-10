@@ -1,6 +1,6 @@
 // subjectFunctions.ts
 import { Subject } from '@/lib/interfaces/subjetc.interface';
-import { deleteSubjects, GetSubjects, GetSubjectsByUserId } from '@/services/studioMaker.service';
+import { deleteSubjects, GetSubjects, GetSubjectsByKnowledgesId, GetSubjectsByUserId } from '@/services/studioMaker.service';
 import { toast } from 'sonner';
 
 export const updateSubject = (subject: Subject, listSubjects: Subject[], setListSubjects: React.Dispatch<React.SetStateAction<Subject[]>>) => {
@@ -74,13 +74,7 @@ export const fetchSubjects = async (
 ): Promise<Subject[]> => {
     let subjects: Subject[];
 
-    // Verifica qual função chamar baseado no pointId
-    if (params.pointId == "admin") {
-        subjects = await GetSubjects(); // Busca todas as disciplinas
-    } else {
-        subjects = await GetSubjectsByUserId(params.pointId); // Busca as disciplinas pelo userId
-    }
-
+    subjects = await GetSubjectsByKnowledgesId(params.pointId); // Busca as disciplinas pelo userId
     // Ordena os subjects pelo campo 'order'
     subjects.sort((a, b) => a.order - b.order);
 

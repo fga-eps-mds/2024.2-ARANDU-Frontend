@@ -6,6 +6,8 @@ import { Journey } from '@/lib/interfaces/journey.interface';
 import { Trail } from '@/lib/interfaces/trails.interface';
 import { Content } from '@/lib/interfaces/content.interface';
 import { Subject } from '@/lib/interfaces/subjetc.interface'
+import { Knowledge } from '@/lib/interfaces/knowledge.interface';
+import { ErrorRounded } from '@mui/icons-material';
 
 
 export const getStartPoints = async (): Promise<StartPoint[]> => {
@@ -103,6 +105,109 @@ export const deleteStartPoint = async ({
     return { error: error };
   }
 };
+
+export const GetKnowledge = async (): Promise<Knowledge[]> => {
+  try {
+    const response = await studioMakerApi.get('/knowledges', {});
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao fetch knowledge", error);
+    throw error
+  }
+}
+export const GetKnowledgesByUserId = async (id: string): Promise<Knowledge[]> => {
+  try {
+    const response = await studioMakerApi.get(`/knowledges/users/${id}`, {
+    });
+    console.log("Knowledge:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch Knowledge", error);
+    throw error;
+  }
+}
+export const createKnowledges = async ({
+  data,
+  token,
+}: {
+  data: any;
+  token: string;
+}) => {
+  try {
+    console.log(data);
+    const response = await studioMakerApi.post('/Knowledges', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('knowledges created:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to create knowledges:', error);
+    return { error: error };
+  }
+};
+export const updateKnowledgeById = async ({
+  id,
+  data,
+  token,
+}: {
+  id: string;
+  data: any;
+  token: string;
+}) => {
+  try {
+    const response = await studioMakerApi.patch(`/knowledges/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Knowledges updated:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to update Knowledges:', error);
+    return { error: error };
+  }
+};
+
+export const deleteKnowledge = async ({
+  id,
+  token,
+}: {
+  id: string;
+  token: string;
+}) => {
+  try {
+    const response = await studioMakerApi.delete(`/Knowledges/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Knowledges deleted:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to delete Knowledges:', error);
+    return { error: error };
+  }
+};
+
+export const GetSubjectsByKnowledgesId = async (id: string): Promise<Subject[]> => {
+  try {
+    const response = await studioMakerApi.get(`/knowledges/${id}/subjects`, {
+
+    });
+    return response.data.subjects;
+  } catch (error) {
+    console.error("falha ao buscar disciplinas pelo ID da area do conhecimento", error);
+    throw error;
+  }
+}
 
 export const GetSubjects = async (): Promise<Subject[]> => {
   try {

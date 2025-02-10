@@ -34,8 +34,8 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin'],
   },
   {
-    label: 'Disciplinas (Admin)',
-    href: `/subjects/admin`,
+    label: 'Áreas do Conhecimento (Admin)',
+    href: `/knowledge`,
     icon: <DashboardIcon className="h-5 w-5 mr-2" />,
     roles: ['admin'],
   },
