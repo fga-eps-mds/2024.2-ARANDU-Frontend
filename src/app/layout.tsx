@@ -10,7 +10,7 @@ import ReactQueryProvider from '@/providers/reactQueryProvider.provider';
 const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600', '700'] });
 
 export const metadata: Metadata = {
-  title: 'Calculus',
+  title: 'ARANDU',
   description: '',
 };
 
