@@ -10,6 +10,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Menu, MenuItem, IconButton } from '@mui/material';
 import { toast } from 'sonner';
 import { Knowledge } from '@/lib/interfaces/knowledge.interface';
+import { updateKnowledgesOrder } from '@/services/studioMaker.service';
 
 interface KnowledgeTableProps {
     knowledge: Knowledge[];
