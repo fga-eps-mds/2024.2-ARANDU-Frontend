@@ -196,6 +196,26 @@ export const deleteKnowledge = async ({
     return { error: error };
   }
 };
+export const updateKnowledgesOrder = async (
+  updatedKnowledge: Knowledge[],
+): Promise<any> => {
+  try {
+    const response = await studioMakerApi.patch(
+      '/Knowledges/order',
+      {
+        knowledge: updatedKnowledge
+      },
+    );
+    console.log('Knowledge updated:', response.data);
+    return {
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Failed to update Knowledge:', error);
+    return { error: error };
+  }
+};
+
 
 export const GetSubjectsByKnowledgesId = async (id: string): Promise<Subject[]> => {
   try {
